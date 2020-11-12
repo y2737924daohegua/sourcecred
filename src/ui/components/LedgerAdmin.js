@@ -1,6 +1,6 @@
 // @flow
 
-import React, {useState, type Node as ReactNode} from "react";
+import React, {useState, useEffect , type Node as ReactNode} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import {
@@ -17,6 +17,8 @@ import {useLedger} from "../utils/LedgerContext";
 import {IdentityMerger} from "./IdentityMerger";
 import {type Identity, type IdentityId} from "../../core/identity";
 import {AliasView} from "./AliasView";
+
+import * as NullUtil from "../../util/null";
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -55,7 +57,12 @@ export const LedgerAdmin = (): ReactNode => {
   const [nextIdentityName, setIdentityName] = useState<string>("");
   const [selectedId, setSelectedId] = useState<IdentityId | null>(null);
   const [promptString, setPromptString] = useState<string>("Add Identity:");
-  const [checkboxSelected, setCheckBoxSelected] = useState<boolean>(false);
+  const [isChecked, setIsChecked] = useState<boolean>(false);
+
+  const handleSingleCheck = (e: ChangeEvent<HTMLInputElement>) => {
+    toggleIdentityActivation(e.currentTarget.id);
+    setIsChecked({ ...isChecked, [e.currentTarget.id]: e.currentTarget.checked });
+  };
 
   const changeIdentityName = (event: SyntheticInputEvent<HTMLInputElement>) =>
     setIdentityName(event.currentTarget.value);
@@ -74,10 +81,8 @@ export const LedgerAdmin = (): ReactNode => {
     let nextLedger;
     if (ledger.account(id).active) {
       nextLedger = ledger.deactivate(id);
-      setCheckBoxSelected(false);
     } else {
       nextLedger = ledger.activate(id);
-      setCheckBoxSelected(true);
     }
     updateLedger(nextLedger);
   };
@@ -85,35 +90,54 @@ export const LedgerAdmin = (): ReactNode => {
   const resetIdentity = () => {
     setIdentityName("");
     setSelectedId(null);
-    setCheckBoxSelected(false);
     setPromptString("Add Identity: ");
   };
 
   const setActiveIdentity = (identity: Identity) => {
     setIdentityName(identity.name);
     setSelectedId(identity.id);
-    setCheckBoxSelected(ledger.account(identity.id).active);
     setPromptString("Update Identity: ");
   };
+
+  const loadEntitiesCheckList = () => {
+    let identities = {}
+    ledger.accounts()
+    .map((a) => a.identity)
+    .map((identity) => identities = { ...identities, [identity.id]: ledger.account(identity.id).active })
+    
+    setIsChecked(identities)
+  }
+
+  useEffect(() =>
+    loadEntitiesCheckList()
+  , [ledger])
 
   const renderIdentities = () => {
     const renderIdentity = (i: Identity, notLastElement: boolean) => (
       <>
         <ListItem button onClick={() => setActiveIdentity(i)} key={i.id}>
           {i.name}
+          <Checkbox
+                onChange={handleSingleCheck}
+                checked={NullUtil.orElse(isChecked[i.id], false)}
+                id = {i.id}
+                name="active"
+                color="primary"
+              />
         </ListItem>
         {notLastElement && <Divider />}
       </>
     );
     const numAccounts = ledger.accounts().length;
+
     return (
       <>
         {ledger
           .accounts()
           .map((a) => a.identity)
-          .map((identity, index) =>
-            renderIdentity(identity, index < numAccounts - 1)
-          )}
+          .map((identity, index) => renderIdentity(identity, index < numAccounts - 1)
+          )     
+        }
       </>
     );
   };
@@ -127,7 +151,7 @@ export const LedgerAdmin = (): ReactNode => {
       <h3>{promptString}</h3>
       <div className={classes.centerRow}>
         <TextField
-          fullWidth
+          fullwidth="true"
           className={classes.updateElement}
           variant="outlined"
           type="text"
@@ -137,12 +161,12 @@ export const LedgerAdmin = (): ReactNode => {
         />
         {selectedId && (
           <FormControlLabel
-            fullWidth
+            fullwidth="true"
             className={classes.checkboxElement}
             control={
               <Checkbox
-                checked={checkboxSelected}
-                onChange={() => toggleIdentityActivation(selectedId)}
+                checked={NullUtil.orElse(isChecked[selectedId], false)}
+                disabled={true}
                 name="active"
                 color="primary"
               />
@@ -178,7 +202,7 @@ export const LedgerAdmin = (): ReactNode => {
         </>
       )}
       <div className={classes.centerRow}>
-        <List fullWidth className={classes.identityList}>
+        <List fullwidth="true" className={classes.identityList}>
           {renderIdentities()}
         </List>
       </div>
