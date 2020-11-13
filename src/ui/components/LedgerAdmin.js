@@ -19,6 +19,7 @@ import {type Identity, type IdentityId} from "../../core/identity";
 import {AliasView} from "./AliasView";
 
 import * as NullUtil from "../../util/null";
+import {fromString as uuidFromString} from "../../util/uuid";
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -57,11 +58,16 @@ export const LedgerAdmin = (): ReactNode => {
   const [nextIdentityName, setIdentityName] = useState<string>("");
   const [selectedId, setSelectedId] = useState<IdentityId | null>(null);
   const [promptString, setPromptString] = useState<string>("Add Identity:");
-  const [isChecked, setIsChecked] = useState<boolean>(false);
+  const [isChecked, setIsChecked] = useState<Object>(false);
 
-  const handleSingleCheck = (e: ChangeEvent<HTMLInputElement>) => {
-    toggleIdentityActivation(e.currentTarget.id);
-    setIsChecked({ ...isChecked, [e.currentTarget.id]: e.currentTarget.checked });
+  const handleSingleCheck = (event: SyntheticInputEvent<HTMLInputElement>) => {
+    const id = event.currentTarget.id;
+    const checked = event.currentTarget.checked;
+    
+    const uuid = uuidFromString(id);
+    toggleIdentityActivation(uuid);    
+
+    setIsChecked({ ...isChecked, [id]: checked });
   };
 
   const changeIdentityName = (event: SyntheticInputEvent<HTMLInputElement>) =>
@@ -101,9 +107,13 @@ export const LedgerAdmin = (): ReactNode => {
 
   const loadEntitiesCheckList = () => {
     let identities = {}
+
     ledger.accounts()
     .map((a) => a.identity)
-    .map((identity) => identities = { ...identities, [identity.id]: ledger.account(identity.id).active })
+    .map((identity) => { 
+      identities = { ...identities, [`${identity.id}`]: ledger.account(identity.id).active }
+    
+    })
     
     setIsChecked(identities)
   }
