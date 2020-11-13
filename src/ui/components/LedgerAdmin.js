@@ -1,6 +1,6 @@
 // @flow
 
-import React, {useState, useEffect , type Node as ReactNode} from "react";
+import React, {useState, useEffect, type Node as ReactNode} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import {
@@ -63,11 +63,11 @@ export const LedgerAdmin = (): ReactNode => {
   const handleSingleCheck = (event: SyntheticInputEvent<HTMLInputElement>) => {
     const id = event.currentTarget.id;
     const checked = event.currentTarget.checked;
-    
-    const uuid = uuidFromString(id);
-    toggleIdentityActivation(uuid);    
 
-    setIsChecked({ ...isChecked, [id]: checked });
+    const uuid = uuidFromString(id);
+    toggleIdentityActivation(uuid);
+
+    setIsChecked({...isChecked, [id]: checked});
   };
 
   const changeIdentityName = (event: SyntheticInputEvent<HTMLInputElement>) =>
@@ -106,21 +106,22 @@ export const LedgerAdmin = (): ReactNode => {
   };
 
   const loadEntitiesCheckList = () => {
-    let identities = {}
+    let identities = {};
 
-    ledger.accounts()
-    .map((a) => a.identity)
-    .map((identity) => { 
-      identities = { ...identities, [`${identity.id}`]: ledger.account(identity.id).active }
-    
-    })
-    
-    setIsChecked(identities)
-  }
+    ledger
+      .accounts()
+      .map((a) => a.identity)
+      .map((identity) => {
+        identities = {
+          ...identities,
+          [`${identity.id}`]: ledger.account(identity.id).active,
+        };
+      });
 
-  useEffect(() =>
-    loadEntitiesCheckList()
-  , [ledger])
+    setIsChecked(identities);
+  };
+
+  useEffect(() => loadEntitiesCheckList(), [ledger]);
 
   const renderIdentities = () => {
     const renderIdentity = (i: Identity, notLastElement: boolean) => (
@@ -128,12 +129,12 @@ export const LedgerAdmin = (): ReactNode => {
         <ListItem button onClick={() => setActiveIdentity(i)} key={i.id}>
           {i.name}
           <Checkbox
-                onChange={handleSingleCheck}
-                checked={NullUtil.orElse(isChecked[i.id], false)}
-                id = {i.id}
-                name="active"
-                color="primary"
-              />
+            onChange={handleSingleCheck}
+            checked={NullUtil.orElse(isChecked[i.id], false)}
+            id={i.id}
+            name="active"
+            color="primary"
+          />
         </ListItem>
         {notLastElement && <Divider />}
       </>
@@ -145,9 +146,9 @@ export const LedgerAdmin = (): ReactNode => {
         {ledger
           .accounts()
           .map((a) => a.identity)
-          .map((identity, index) => renderIdentity(identity, index < numAccounts - 1)
-          )     
-        }
+          .map((identity, index) =>
+            renderIdentity(identity, index < numAccounts - 1)
+          )}
       </>
     );
   };
