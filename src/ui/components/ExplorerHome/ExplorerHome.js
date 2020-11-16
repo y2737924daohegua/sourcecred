@@ -18,10 +18,11 @@ import {
   TableRow,
   TextField,
 } from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
+import {makeStyles, withStyles} from "@material-ui/core/styles";
 import {CredView} from "../../../analysis/credView";
 import sortBy from "../../../util/sortBy";
 import CredTimeline from "./CredTimeline";
+import MultiTimeline from "./MultiTimeline";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -88,7 +89,26 @@ const useStyles = makeStyles((theme) => ({
   element: {flex: 1, margin: "20px"},
   arrowInput: {width: "40%", display: "inline-block"},
   pageHeader: {color: theme.palette.text.primary},
+  // cell: { backgroundColor: theme.palette.common.black },
 }));
+
+const StyledTableCell = withStyles((theme) => ({
+  head: {
+    backgroundColor: theme.palette.common.black,
+  },
+  body: {
+    backgroundColor: theme.palette.common.black,
+    fontSize: 14,
+  },
+}))(TableCell);
+
+// const StyledTableRow = withStyles((theme) => ({
+//   root: {
+//     '&:nth-of-type(odd)': {
+//       backgroundColor: theme.palette.action.hover,
+//     },
+//   },
+// }))(TableRow);
 
 type ExplorerHomeProps = {|
   +initialView: CredView,
@@ -173,7 +193,7 @@ export const ExplorerHome = ({initialView}: ExplorerHomeProps) => {
         Explorer Home
       </h1>
       <div className={`${classes.centerRow} ${classes.graph}`}>
-        <CredTimeline height={150} width={1000} data={credTimelines[0]} />
+        <MultiTimeline height={150} width={1000} cred={credTimelines[0]} participants={credTimelines[1]} grain={credTimelines[2]}/>
       </div>
       <Divider style={{margin: 20}} />
       <div className={`${classes.rightRow}`}>
@@ -206,59 +226,59 @@ export const ExplorerHome = ({initialView}: ExplorerHomeProps) => {
               marginBottom: "20px",
             }}
           >
-            <span style={{fontSize: "24px"}}>Last Week&aposs Activity</span>
+            <span style={{fontSize: "24px"}}>Last Week's Activity</span>
             <TextField label="Filter Names" variant="outlined" />
           </div>
           <TableContainer component={Paper}>
             <Table aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell>
+                  <StyledTableCell>
                     <b>Participant</b>
-                  </TableCell>
-                  <TableCell>
+                  </StyledTableCell>
+                  <StyledTableCell>
                     <b>Cred</b>
-                  </TableCell>
-                  <TableCell>
+                  </StyledTableCell>
+                  <StyledTableCell>
                     <b>Grain</b>
-                  </TableCell>
-                  <TableCell>
-                    <b>Contributions Chart (ALL TIME)</b>
-                  </TableCell>
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    <b>Contributions Chart (All Time)</b>
+                  </StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {rows.map((row) => (
                   <TableRow key={row.username}>
-                    <TableCell component="th" scope="row">
+                    <StyledTableCell component="th" scope="row">
                       {row.username}
-                    </TableCell>
-                    <TableCell>{row.cred}</TableCell>
-                    <TableCell>{row.grain}</TableCell>
-                    <TableCell align="right">
+                    </StyledTableCell>
+                    <StyledTableCell>{row.cred}</StyledTableCell>
+                    <StyledTableCell>{row.grain}</StyledTableCell>
+                    <StyledTableCell align="right">
                       <CredTimeline data={row.chart} />
-                    </TableCell>
+                    </StyledTableCell>
                   </TableRow>
                 ))}
                 <TableRow key="average">
-                  <TableCell component="th" scope="row">
+                  <StyledTableCell component="th" scope="row">
                     Average
-                  </TableCell>
-                  <TableCell>42</TableCell>
-                  <TableCell>88.9g</TableCell>
-                  <TableCell align="right" />
+                  </StyledTableCell>
+                  <StyledTableCell>42</StyledTableCell>
+                  <StyledTableCell>88.9g</StyledTableCell>
+                  <StyledTableCell align="right" />
                 </TableRow>
                 <TableRow key="total">
-                  <TableCell component="th" scope="row">
+                  <StyledTableCell component="th" scope="row">
                     <b>TOTAL</b>
-                  </TableCell>
-                  <TableCell>
+                  </StyledTableCell>
+                  <StyledTableCell>
                     <b>610</b>
-                  </TableCell>
-                  <TableCell>
+                  </StyledTableCell>
+                  <StyledTableCell>
                     <b>2097g</b>
-                  </TableCell>
-                  <TableCell align="right" />
+                  </StyledTableCell>
+                  <StyledTableCell align="right" />
                 </TableRow>
               </TableBody>
             </Table>
@@ -305,13 +325,13 @@ export const ExplorerHome = ({initialView}: ExplorerHomeProps) => {
             />
           </FormGroup>
         </div>
-        <div
+        {/* <div
           className={classes.barChartWrapper}
           style={{flexDirection: "column"}}
         >
           <h2>Cred By Plugin</h2>
           <div className={classes.barChart}>Bar Chart</div>
-        </div>
+        </div> */}
       </div>
     </Container>
   );
