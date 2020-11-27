@@ -106,17 +106,11 @@ export const LedgerAdmin = (): ReactNode => {
   };
 
   const loadEntitiesCheckList = () => {
-    let identities = {};
-
-    ledger
-      .accounts()
-      .map((a) => a.identity)
-      .map((identity) => {
-        identities = {
-          ...identities,
-          [`${identity.id}`]: ledger.account(identity.id).active,
-        };
-      });
+    const identities = {};
+    
+    ledger.accounts().map(({identity, active}) => {
+      identities[`${identity.id}`] = active;
+    });
 
     setIsChecked(identities);
   };
@@ -130,7 +124,7 @@ export const LedgerAdmin = (): ReactNode => {
           {i.name}
           <Checkbox
             onChange={handleSingleCheck}
-            checked={NullUtil.orElse(isChecked[i.id], false)}
+            checked={Boolean(isChecked[i.id])}
             id={i.id}
             name="active"
             color="primary"
