@@ -107,7 +107,7 @@ export const LedgerAdmin = (): ReactNode => {
 
   const loadEntitiesCheckList = () => {
     const identities = {};
-    
+
     ledger.accounts().map(({identity, active}) => {
       identities[`${identity.id}`] = active;
     });
