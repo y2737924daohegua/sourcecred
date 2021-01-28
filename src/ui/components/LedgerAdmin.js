@@ -156,7 +156,7 @@ export const LedgerAdmin = (): ReactNode => {
       <h3>{promptString}</h3>
       <div className={classes.centerRow}>
         <TextField
-          fullwidth="true"
+          fullWidth
           className={classes.updateElement}
           variant="outlined"
           type="text"
@@ -166,12 +166,11 @@ export const LedgerAdmin = (): ReactNode => {
         />
         {selectedId && (
           <FormControlLabel
-            fullwidth="true"
+            fullWidth
             className={classes.checkboxElement}
             control={
               <Checkbox
                 checked={NullUtil.orElse(isChecked[selectedId], false)}
-                disabled={true}
                 name="active"
                 color="primary"
               />
@@ -207,7 +206,7 @@ export const LedgerAdmin = (): ReactNode => {
         </>
       )}
       <div className={classes.centerRow}>
-        <List fullwidth="true" className={classes.identityList}>
+        <List fullWidth className={classes.identityList}>
           {renderIdentities()}
         </List>
       </div>
