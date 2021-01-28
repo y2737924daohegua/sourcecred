@@ -1,6 +1,11 @@
 // @flow
 
-import React, {useState, useEffect, type Node as ReactNode} from "react";
+import React, {
+  useCallback,
+  useState,
+  useEffect,
+  type Node as ReactNode,
+} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import {
@@ -60,15 +65,17 @@ export const LedgerAdmin = (): ReactNode => {
   const [promptString, setPromptString] = useState<string>("Add Identity:");
   const [isChecked, setIsChecked] = useState<Object>(false);
 
-  const handleSingleCheck = (event: SyntheticInputEvent<HTMLInputElement>) => {
-    const id = event.currentTarget.id;
-    const checked = event.currentTarget.checked;
+  const handleSingleCheck = useCallback(
+    (event: SyntheticInputEvent<HTMLInputElement>) => {
+      const id = event.currentTarget.id;
+      const checked = event.currentTarget.checked;
 
-    const uuid = uuidFromString(id);
-    toggleIdentityActivation(uuid);
+      const uuid = uuidFromString(id);
+      toggleIdentityActivation(uuid);
 
-    setIsChecked({...isChecked, [id]: checked});
-  };
+      setIsChecked({...isChecked, [id]: checked});
+    }
+  );
 
   const changeIdentityName = (event: SyntheticInputEvent<HTMLInputElement>) =>
     setIdentityName(event.currentTarget.value);
@@ -105,7 +112,7 @@ export const LedgerAdmin = (): ReactNode => {
     setPromptString("Update Identity: ");
   };
 
-  const loadEntitiesCheckList = () => {
+  useEffect(() => {
     const identities = {};
 
     ledger.accounts().map(({identity, active}) => {
@@ -113,9 +120,7 @@ export const LedgerAdmin = (): ReactNode => {
     });
 
     setIsChecked(identities);
-  };
-
-  useEffect(() => loadEntitiesCheckList(), [ledger]);
+  }, [ledger]);
 
   const renderIdentities = () => {
     const renderIdentity = (i: Identity, notLastElement: boolean) => (
